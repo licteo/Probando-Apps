@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Parqueadero diario</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="theme-color" content="#0d6efd" />
+</head>
+<body>
+  <header>
+    <h1>Parqueadero diario</h1>
+    <button id="installBtn" hidden>Instalar aplicación</button>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Registro</h2>
+      <form id="regForm">
+        <label>¿Qué acción vas a registrar? *</label>
+        <select name="accion" required>
+          <option value="ENTRADA">REGISTRAR ENTRADA (Asistencia)</option>
+          <option value="SALIDA_COBRO">REGISTRAR SALIDA Y COBRO</option>
+          <option value="PAGO_NOVEDAD">SOLO PAGO O NOVEDAD</option>
+        </select>
+
+        <label>Placa o Identificador *</label>
+        <input name="placa" placeholder="BUB-530" required />
+
+        <label>Grupo</label>
+        <input name="grupo" placeholder="BUS LUSITANIA" list="grupos" />
+        <datalist id="grupos">
+          <option>BUS LUSITANIA</option>
+          <option>COOTRANDER</option>
+          <option>FLOTAX</option>
+          <option>MOTOS</option>
+          <option>TURBO</option>
+          <option>PARTICULARES</option>
+        </datalist>
+
+        <label>Monto cobrado ($)</label>
+        <input name="monto" type="number" min="0" step="100" />
+
+        <label>Observaciones</label>
+        <input name="obs" placeholder="Pago hasta el 8, NO pago..." />
+
+        <button type="submit">Guardar</button>
+        <button type="reset">Limpiar</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Registros de hoy</h2>
+      <div class="toolbar">
+        <button id="exportCsv">Exportar CSV</button>
+        <button id="printBtn">Imprimir</button>
+        <button id="syncBtn">Sincronizar</button>
+        <span id="syncStatus"></span>
+      </div>
+      <table id="tabla">
+        <thead>
+          <tr>
+            <th>Fecha/Hora</th><th>Acción</th><th>Placa</th><th>Grupo</th><th>Monto</th><th>Obs</th><th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <small>Offline listo · PWA · © Parqueadero</small>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>
