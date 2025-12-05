@@ -1,3 +1,4 @@
+// Utilidades básicas
 const fmtDate = (d=new Date()) => {
   const pad = n => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
@@ -7,11 +8,15 @@ const todayISO = () => {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 };
 
+// Almacenamiento local (simple y fiable)
 const KEY = 'parqueadero_registros_v1';
 const loadAll = () => JSON.parse(localStorage.getItem(KEY) || '[]');
 const saveAll = (arr) => localStorage.setItem(KEY, JSON.stringify(arr));
-const onlyToday = (arr) => arr.filter(r => r.fecha.slice(0,10) === todayISO());
 
+// Filtro de hoy
+const onlyToday = (arr) => arr.filter(r => r.fecha.startsWith(todayISO()));
+
+// Render tabla
 function render() {
   const tbody = document.querySelector('#tabla tbody');
   tbody.innerHTML = '';
@@ -29,9 +34,11 @@ function render() {
     `;
     tbody.appendChild(tr);
   });
+  // Eliminar
   tbody.querySelectorAll('button[data-i]').forEach(btn => {
     btn.addEventListener('click', () => {
       const all = loadAll();
+      // Map a índice global del día
       const day = onlyToday(all);
       const item = day[btn.dataset.i];
       const pos = all.findIndex(r => r.id === item.id);
@@ -42,6 +49,7 @@ function render() {
   });
 }
 
+// Guardar registro
 document.getElementById('regForm').addEventListener('submit', e => {
   e.preventDefault();
   const fd = new FormData(e.target);
@@ -62,6 +70,7 @@ document.getElementById('regForm').addEventListener('submit', e => {
   render();
 });
 
+// Exportar CSV
 document.getElementById('exportCsv').addEventListener('click', () => {
   const rows = onlyToday(loadAll());
   const headers = ['Fecha/Hora','Acción','Placa','Grupo','Monto','Observaciones'];
@@ -77,9 +86,42 @@ document.getElementById('exportCsv').addEventListener('click', () => {
   URL.revokeObjectURL(url);
 });
 
-document.getElementById('printBtn').addEventListener('click', () => {
-  window.print();
+// Sincronizar (placeholder para Apps Script / API propia)
+const syncStatus = document.getElementById('syncStatus');
+document.getElementById('syncBtn').addEventListener('click', async () => {
+  const all = loadAll();
+  const pending = all.filter(r => !r.synced);
+  if (!pending.length) { syncStatus.textContent = 'Sin pendientes.'; return; }
+  syncStatus.textContent = 'Sincronizando...';
+  try {
+    // Reemplaza con tu endpoint de Apps Script (web app)
+    // const res = await fetch('TU_WEB_APP_URL', { method:'POST', body: JSON.stringify(pending) });
+    // if (!res.ok) throw new Error('Error de red');
+    // Simulación offline: marca como sincronizado
+    const updated = all.map(r => ({ ...r, synced: true }));
+    saveAll(updated);
+    syncStatus.textContent = 'Sincronizado (simulado).';
+    render();
+  } catch (err) {
+    syncStatus.textContent = 'Fallo de sincronización.';
+  }
 });
 
-const syncStatus = document.getElementById('syncStatus');
-document.getElementById('
+// Instalación PWA
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.hidden = false;
+});
+installBtn.addEventListener('click', async () => {
+  installBtn.hidden = true;
+  if (deferredPrompt) {
+    const { outcome } = await deferredPrompt.prompt();
+    deferredPrompt = null;
+  }
+});
+
+// Inicial
+document.addEventListener('DOMContentLoaded', render);

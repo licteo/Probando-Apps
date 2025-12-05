@@ -13,10 +13,8 @@ button[disabled] { opacity:.6; cursor:not-allowed; }
 table { width:100%; border-collapse:collapse; margin-top:10px; }
 th, td { border-bottom:1px solid #eee; padding:8px; text-align:left; font-size:14px; }
 .toolbar { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
-
 @media print {
   header, .toolbar, form, footer { display:none; }
-  body { background:#fff; }
-  table { font-size:12px; width:100%; border:1px solid #000; }
-  th, td { border:1px solid #000; padding:4px; }
+  .card { border:none; }
+  table { font-size:12px; }
 }
